@@ -1,0 +1,7 @@
+# Keep retired design exports out of the GitHub repository.
+/archive/
+
+# Common local operating-system files.
+Thumbs.db
+Desktop.ini
+.DS_Store

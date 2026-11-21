@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Look up The Midnight Star cards by code or title, browse rarity, and read each card story and New Year wishes.">
+  <meta name="theme-color" content="#0d1427">
+  <title>Cardlist | The Midnight Star</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="cards.js" defer></script>
+  <script src="image-gestures.js" defer></script>
+  <script src="cardlist.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container brand"><span class="star" aria-hidden="true"></span>The Midnight Star</div>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="app-title">
+      <div class="hero-art" aria-hidden="true"></div>
+      <div class="container intro">
+        <h1 id="app-title">Cardlist</h1>
+        <p class="hint">Enter a card code, or search by its English or Thai title.</p>
+        <form class="search" id="search-form" role="search">
+          <span class="magnifier" aria-hidden="true"></span>
+          <label class="sr-only" for="card-search">Search by code or title</label>
+          <input id="card-search" name="q" type="search" placeholder="Search by code or title" autocomplete="off">
+          <button class="primary" type="submit">Search</button>
+        </form>
+        <div class="filters" id="filters" role="group" aria-label="Filter by rarity"></div>
+      </div>
+    </section>
+
+    <div class="container gallery">
+      <section class="catalog" aria-labelledby="catalog-title" id="catalog">
+        <div class="catalog-header">
+          <h2 id="catalog-title" tabindex="-1">All Cards</h2>
+          <p class="result-count" id="result-count" role="status"></p>
+        </div>
+        <ul class="card-grid" id="results" aria-label="Matching cards"></ul>
+        <nav class="gallery-pager" id="gallery-pager" aria-label="Gallery pages" hidden>
+          <button class="dialog-button" type="button" id="previous-page" data-page-step="-1" aria-controls="results">Previous</button>
+          <div class="gallery-page-numbers" id="gallery-page-numbers"></div>
+          <button class="dialog-button" type="button" id="next-page" data-page-step="1" aria-controls="results">Next</button>
+        </nav>
+      </section>
+
+      <section class="empty" id="empty" hidden>
+        <h2>No cards found</h2>
+        <p>Try another code or title, or clear the rarity filter.</p>
+        <button class="primary" type="button" id="reset">Clear search and filters</button>
+      </section>
+      <noscript><p>Enable JavaScript in your browser to search and filter the card list.</p></noscript>
+    </div>
+  </main>
+
+  <dialog class="card-dialog" id="card-detail" aria-labelledby="card-title">
+    <div class="dialog-toolbar">
+      <form method="dialog">
+        <button class="dialog-button close-dialog" type="submit" autofocus><span aria-hidden="true">×</span> Close</button>
+      </form>
+    </div>
+    <div class="detail">
+      <div class="detail-main">
+        <div class="detail-meta">
+          <span class="rarity-badge"><span class="star" aria-hidden="true"></span><span id="card-rarity"></span></span>
+          <span class="card-code" id="card-code"></span>
+        </div>
+        <h2 class="detail-title" id="card-title"></h2>
+        <p class="detail-th" lang="th" id="card-title-th"></p>
+      </div>
+      <figure class="card-figure">
+        <div class="card-preview">
+          <button class="dialog-button icon-button navigation-arrow mobile-card-arrow" type="button" data-card-step="-1" aria-label="Previous card" aria-disabled="true"><span class="icon-chevron" aria-hidden="true"></span></button>
+          <div class="art-frame">
+            <img id="card-art" alt="" width="791" height="1169">
+            <button class="dialog-button icon-button view-image" type="button" id="view-full-image" aria-haspopup="dialog" aria-label="View full image" title="View full image"><span class="icon-expand" aria-hidden="true"></span></button>
+          </div>
+          <button class="dialog-button icon-button navigation-arrow mobile-card-arrow" type="button" data-card-step="1" aria-label="Next card" aria-disabled="true"><span class="icon-chevron" aria-hidden="true"></span></button>
+        </div>
+        <figcaption class="card-position" id="card-position" aria-hidden="true"></figcaption>
+      </figure>
+      <div class="detail-facts">
+        <h3 lang="th">เรื่องราว</h3>
+        <p class="story" lang="th" id="story"></p>
+        <h3 lang="th">คำอวยพร</h3>
+        <div class="wishes">
+          <p class="wish" lang="th" id="wish-th"></p>
+        </div>
+      </div>
+      <div class="mobile-detail-sizing mobile-title-sizing" aria-hidden="true" inert></div>
+      <div class="mobile-detail-sizing mobile-facts-sizing" aria-hidden="true" inert></div>
+    </div>
+    <div class="card-navigation detail-navigation" role="group" aria-label="Browse matching cards">
+      <button class="dialog-button icon-button navigation-arrow" type="button" id="previous-card" data-card-step="-1" aria-label="Previous card" aria-disabled="true" title="Previous card"><span class="icon-chevron" aria-hidden="true"></span></button>
+      <button class="dialog-button icon-button navigation-arrow" type="button" id="next-card" data-card-step="1" aria-label="Next card" aria-disabled="true" title="Next card"><span class="icon-chevron" aria-hidden="true"></span></button>
+    </div>
+    <p class="sr-only" id="card-position-announcement" role="status"></p>
+  </dialog>
+
+  <dialog class="card-dialog image-dialog" id="full-image-dialog" aria-label="Full card image">
+    <div class="dialog-toolbar">
+      <form method="dialog">
+        <button class="dialog-button icon-button" type="submit" id="close-full-image" aria-label="Close full image" title="Close full image" autofocus><span class="icon-close" aria-hidden="true"></span></button>
+      </form>
+    </div>
+    <div class="full-image">
+      <img id="full-card-art" alt="" width="791" height="1169" draggable="false">
+    </div>
+    <div class="card-navigation full-image-navigation" role="group" aria-label="Browse matching card images">
+      <button class="dialog-button icon-button navigation-arrow" type="button" id="previous-image" data-card-step="-1" aria-label="Previous card image" aria-disabled="true" title="Previous card image"><span class="icon-chevron" aria-hidden="true"></span></button>
+      <p class="card-position" id="full-image-position" aria-hidden="true"></p>
+      <p class="sr-only" id="full-image-announcement" role="status"></p>
+      <button class="dialog-button icon-button navigation-arrow" type="button" id="next-image" data-card-step="1" aria-label="Next card image" aria-disabled="true" title="Next card image"><span class="icon-chevron" aria-hidden="true"></span></button>
+    </div>
+  </dialog>
+
+</body>
+</html>
