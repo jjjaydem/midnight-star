@@ -97,7 +97,7 @@ function resultTile(card) {
   button.setAttribute("aria-haspopup", "dialog");
   button.style.setProperty("--accent", rarities[card.tier].color);
   const picture = node("img");
-  picture.src = "assets/thumbnails/" + card.id + ".jpg";
+  picture.src = "assets/thumbnails/" + card.id + ".webp";
   picture.alt = "";
   picture.loading = "lazy";
   picture.decoding = "async";

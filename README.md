@@ -22,8 +22,8 @@ All site paths are relative, so the site works both at a repository subpath (for
 - `cards.js` — card titles, stories, wishes, rarity, and image filenames
 - `cardlist.js` — search, rarity filters, gallery paging, and detail dialogs
 - `image-gestures.js` — image swipe and zoom interactions
-- `assets/cards/` — 60 full-size PNG card images
-- `assets/thumbnails/` — gallery preview images
+- `assets/cards/` — 60 optimized WebP card images
+- `assets/thumbnails/` — 60 optimized WebP gallery previews
 - `assets/banner.jpg` — page banner
 - `assets/fonts/` — locally hosted Noto Sans Thai font and its OFL license
 
