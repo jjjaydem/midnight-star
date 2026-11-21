@@ -228,12 +228,16 @@ html:has(.card-dialog[open]) { overflow: hidden; }
 .icon-close::before { transform: rotate(45deg); }
 .icon-close::after { transform: rotate(-45deg); }
 .close-dialog span { font-size: 1.25rem; line-height: 1; }
-.image-dialog { width: max-content; max-width: calc(100% - 1rem); }
+.image-dialog {
+  --full-image-height: min(1169px, calc(100dvh - 9rem));
+  width: max-content; max-width: calc(100% - 1rem);
+}
 .image-dialog::backdrop { background: rgb(5 9 19 / .88); }
 .image-dialog .dialog-toolbar { justify-content: flex-end; }
 .full-image { position: relative; isolation: isolate; min-height: 0; overflow: hidden; padding: .5rem; background: #0b1224; touch-action: none; user-select: none; }
 .full-image img {
-  display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - 9rem);
+  display: block; width: calc(var(--full-image-height) * 791 / 1169); height: auto; max-width: 100%;
+  aspect-ratio: 791 / 1169;
   margin-inline: auto; object-fit: contain;
 }
 .full-image-navigation { flex: none; padding: .275rem .6rem; border-top: 1px solid var(--line); }
@@ -249,7 +253,7 @@ html:has(.card-dialog[open]) { overflow: hidden; }
   .navigation-arrow[data-card-step="1"] { inset-inline-start: calc(100% + .7rem); }
 }
 @media (max-width: 959px) {
-  .full-image img { max-height: calc(100dvh - 10.5rem); }
+  .image-dialog { --full-image-height: min(1169px, calc(100dvh - 10.5rem)); }
 }
 @media (min-width: 681px) {
   .hero { display: grid; align-items: center; min-height: clamp(19rem, 27vw, 42rem); }
@@ -276,7 +280,7 @@ html:has(.card-dialog[open]) { overflow: hidden; }
   .brand { min-height: 4.625rem; }
   .hero-art { inset: 0 0 auto; height: 11rem; background-image:
     linear-gradient(0deg,var(--bg),rgba(13,20,39,.18) 45%,transparent 76%),
-    url("assets/banner.jpg");
+    url("assets/banner-mobile.webp");
     background-size: auto, auto 171%; background-position: center, right 17%; background-repeat: no-repeat; }
   .hero-art::after {
     --art-height: 171cqh;
@@ -374,7 +378,6 @@ html:has(.card-dialog[open]) { overflow: hidden; }
       var(--foil-bands) var(--foil-x, 50%) center / 170% 100%;
     mix-blend-mode: screen; transition: opacity 165ms ease;
   }
-  .result.is-flashing .tile-art::after { animation: card-foil-flash var(--foil-flash-duration) ease-out both; }
   .popup-foil.is-sweeping {
     background: var(--foil-bands) 0% center / 210% 100% no-repeat;
     animation: popup-foil-sweep 280ms ease-in-out var(--popup-foil-delay, 0ms) both;
@@ -395,11 +398,6 @@ html:has(.card-dialog[open]) { overflow: hidden; }
 }
 @keyframes banner-star-pulse { 0%, 100% { opacity: .3; } 48% { opacity: .75; } }
 @keyframes banner-star-reveal { from { opacity: 0; } to { opacity: .3; } }
-@keyframes card-foil-flash {
-  0% { opacity: 0; background-position: center, 12% center; }
-  35% { opacity: var(--foil-strength); }
-  100% { opacity: 0; background-position: center, 88% center; }
-}
 @keyframes popup-foil-sweep {
   0% { opacity: 0; background-position: var(--popup-foil-from, 0%) center; }
   44% { opacity: var(--foil-strength); }

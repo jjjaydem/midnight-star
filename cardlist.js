@@ -29,7 +29,6 @@ const fullImageArt = fullCardImage.parentElement;
 const empty = element("empty");
 const imageFolder = "assets/cards/";
 const mouseHover = matchMedia("(hover: hover) and (pointer: fine)");
-const coarsePointer = matchMedia("(pointer: coarse)");
 const compactDetails = matchMedia(
   "(max-width: 680px), (max-width: 959px) and (max-height: 520px) and (orientation: landscape) and (pointer: coarse)"
 );
@@ -37,12 +36,12 @@ const mobileSizingRegions = [
   [".detail-main", ".mobile-title-sizing"],
   [".detail-facts", ".mobile-facts-sizing"]
 ].map(selectors => selectors.map(selector => detailBody.querySelector(selector)));
-const tapFoilDuration = 180;
 let cardsPerPage = galleryPageSize();
 let selectedTier = "";
 let matchingCards = [];
 let galleryPage = 0;
 let activeCardIndex = -1;
+let activeArtwork = null;
 let openedFrom = null;
 
 function normalize(value) {
@@ -88,6 +87,10 @@ function addFilters() {
   }
 }
 
+function thumbnailUrl(card) {
+  return "assets/thumbnails/" + card.id + ".webp";
+}
+
 function resultTile(card) {
   const li = node("li");
   const button = node("button", "result");
@@ -97,10 +100,10 @@ function resultTile(card) {
   button.setAttribute("aria-haspopup", "dialog");
   button.style.setProperty("--accent", rarities[card.tier].color);
   const picture = node("img");
-  picture.src = "assets/thumbnails/" + card.id + ".webp";
   picture.alt = "";
   picture.loading = "lazy";
   picture.decoding = "async";
+  picture.src = thumbnailUrl(card);
   picture.width = 791;
   picture.height = 1169;
   const artwork = node("span", "tile-art");
@@ -140,6 +143,35 @@ function sizeMobileDetails() {
   }
 }
 
+function showArtwork(image, artwork) {
+  image.alt = artwork.alt;
+  image.src = artwork.fullSrc || artwork.previewSrc;
+}
+
+async function loadArtwork(card) {
+  const artwork = {
+    alt: card.en + " (" + card.id + ")",
+    previewSrc: thumbnailUrl(card),
+    fullSrc: ""
+  };
+  activeArtwork = artwork;
+  showArtwork(cardImage, artwork);
+  if (imageDialog.open) updateFullImage();
+
+  const full = new Image();
+  full.src = imageFolder + encodeURIComponent(card.image);
+  try {
+    await full.decode();
+  } catch {
+    return; // Keep the preview available if the full image fails to load.
+  }
+
+  if (activeArtwork !== artwork) return;
+  artwork.fullSrc = full.src;
+  showArtwork(cardImage, artwork);
+  if (imageDialog.open) showArtwork(fullCardImage, artwork);
+}
+
 function showDetails(index) {
   const card = matchingCards[index];
   activeCardIndex = index;
@@ -149,8 +181,7 @@ function showDetails(index) {
   detail.style.setProperty("--accent", rarity.color);
   imageDialog.style.setProperty("--accent", rarity.color);
   for (const [id, text] of Object.entries(detailText(card))) element(id).textContent = text;
-  cardImage.alt = card.en + " (" + card.id + ")";
-  cardImage.src = imageFolder + encodeURIComponent(card.image);
+  loadArtwork(card);
   const position = index + 1;
   const counter = position + " / " + matchingCards.length;
   const announcement = "Card " + position + " of " + matchingCards.length + ": " + card.en;
@@ -162,7 +193,6 @@ function showDetails(index) {
     const adjacentIndex = index + Number(button.dataset.cardStep);
     button.setAttribute("aria-disabled", String(adjacentIndex < 0 || adjacentIndex >= matchingCards.length));
   }
-  if (imageDialog.open) updateFullImage();
 }
 
 function canStepCard(offset) {
@@ -192,8 +222,12 @@ async function playPopupFoil(image, direction = 0) {
   const foil = node("span", "popup-foil");
   foil.setAttribute("aria-hidden", "true");
   artwork.append(foil);
+  const previewSource = image.src;
   try {
-    await image.decode();
+    await image.decode().catch(error => {
+      if (!foil.isConnected || image.src === previewSource) throw error;
+      return image.decode();
+    });
   } catch {
     foil.remove();
     return;
@@ -370,20 +404,7 @@ for (const type of ["pointerup", "pointercancel"]) {
 
 results.addEventListener("click", event => {
   const button = event.target.closest("button[data-id]");
-  if (!button) return;
-  const isTouch = event.pointerType === "touch" || (!event.pointerType && event.detail > 0 && coarsePointer.matches);
-  if (!isTouch || reducedMotion.matches) {
-    openCard(button);
-    return;
-  }
-  if (results.querySelector(".is-flashing")) return;
-  aimFoil(button, event);
-  button.style.setProperty("--foil-flash-duration", tapFoilDuration + "ms");
-  button.classList.add("is-pressed", "is-flashing");
-  setTimeout(() => {
-    button.classList.remove("is-pressed", "is-flashing");
-    openCard(button);
-  }, tapFoilDuration);
+  if (button) openCard(button);
 });
 
 for (const button of navigationArrows) {
@@ -392,8 +413,7 @@ for (const button of navigationArrows) {
 
 function updateFullImage() {
   resetFullImageView();
-  fullCardImage.alt = cardImage.alt;
-  fullCardImage.src = cardImage.src;
+  showArtwork(fullCardImage, activeArtwork);
 }
 
 viewFullImage.addEventListener("click", () => {
@@ -439,6 +459,7 @@ detail.addEventListener("close", () => {
   detailMotion.reset();
   for (const [, sizingRegion] of mobileSizingRegions) sizingRegion.replaceChildren();
   cardImage.removeAttribute("src");
+  activeArtwork = null;
   activeCardIndex = -1;
   if (openedFrom) {
     const returnTarget = openedFrom.isConnected ? openedFrom : catalogTitle;
