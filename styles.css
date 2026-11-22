@@ -213,19 +213,26 @@ html.card-scroll-locked body {
 }
 [data-card-step="-1"] .icon-chevron { transform: translateX(.1rem) rotate(135deg); }
 .view-image {
-  position: absolute; z-index: 1; inset: .5rem .5rem auto auto; color: var(--text);
-  border-color: var(--accent, var(--line)); background: rgb(13 20 39 / .9);
+  position: absolute; z-index: 1; inset: .25rem .25rem auto auto;
+  color: rgb(249 239 217 / .85); border: 0; background: transparent;
 }
+.view-image::before {
+  content: ""; position: absolute; z-index: -1; inset: .375rem; pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--accent, var(--line)) 65%, transparent);
+  border-radius: .4rem; background: rgb(13 20 39 / .7);
+}
+.view-image:is(:hover, :focus-visible)::before { border-color: var(--gold); background: rgb(13 20 39 / .85); }
+.view-image:focus-visible { outline-offset: -3px; }
 .icon-expand {
-  inline-size: 1rem; block-size: 1rem;
-  background: linear-gradient(currentColor,currentColor) left top / .37rem 2px,
-    linear-gradient(currentColor,currentColor) left top / 2px .37rem,
-    linear-gradient(currentColor,currentColor) right top / .37rem 2px,
-    linear-gradient(currentColor,currentColor) right top / 2px .37rem,
-    linear-gradient(currentColor,currentColor) left bottom / .37rem 2px,
-    linear-gradient(currentColor,currentColor) left bottom / 2px .37rem,
-    linear-gradient(currentColor,currentColor) right bottom / .37rem 2px,
-    linear-gradient(currentColor,currentColor) right bottom / 2px .37rem;
+  inline-size: .875rem; block-size: .875rem;
+  background: linear-gradient(currentColor,currentColor) left top / .3125rem 2px,
+    linear-gradient(currentColor,currentColor) left top / 2px .3125rem,
+    linear-gradient(currentColor,currentColor) right top / .3125rem 2px,
+    linear-gradient(currentColor,currentColor) right top / 2px .3125rem,
+    linear-gradient(currentColor,currentColor) left bottom / .3125rem 2px,
+    linear-gradient(currentColor,currentColor) left bottom / 2px .3125rem,
+    linear-gradient(currentColor,currentColor) right bottom / .3125rem 2px,
+    linear-gradient(currentColor,currentColor) right bottom / 2px .3125rem;
   background-repeat: no-repeat;
 }
 .icon-close { display: grid; place-items: center; }
@@ -248,6 +255,8 @@ html.card-scroll-locked body {
   margin-inline: auto; object-fit: contain;
 }
 .full-image-navigation { flex: none; padding: .275rem .6rem; border-top: 1px solid var(--line); }
+/* Keep rapid taps on the viewer controls from triggering page zoom in iOS Safari. */
+.full-image-navigation, .full-image-navigation .navigation-arrow { touch-action: none; }
 .full-image-navigation > .card-position { margin-inline: auto; }
 .popup-foil { position: absolute; pointer-events: none; opacity: 0; mix-blend-mode: screen; }
 .popup-foil.sweep-right { --popup-foil-from: 100%; --popup-foil-to: 0%; }
@@ -358,6 +367,24 @@ html.card-scroll-locked body {
   .card-preview .art-frame {
     width: min(18rem, calc(100% - 5.5rem - clamp(.6rem, 4vw, 2rem)), calc((100cqh - var(--card-counter-space)) * 791 / 1169));
     min-width: 0;
+  }
+}
+@media (max-width: 680px) and (orientation: portrait) {
+  #card-detail[open] { --detail-height: min(52rem, calc(var(--dialog-viewport-height) - 1rem)); }
+  #card-detail > .dialog-toolbar { padding-block: .25rem; }
+  .detail { padding-block: .45rem; row-gap: .35rem; }
+  .detail-facts { padding-top: .35rem; }
+  .card-figure { --card-counter-space: 1.3125rem; }
+  .card-figure > .card-position { margin-top: .25rem; }
+  .card-preview {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .3rem;
+    margin-inline: calc(.375rem - var(--detail-padding));
+  }
+  .card-preview .art-frame {
+    justify-self: center;
+    width: min(100%, 21rem, calc((100cqh - var(--card-counter-space)) * 791 / 1169));
   }
 }
 @media (max-width: 959px) and (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
