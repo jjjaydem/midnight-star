@@ -430,7 +430,7 @@ html.card-scroll-locked body {
 @media (prefers-reduced-motion: no-preference) {
   .hero-art[data-offscreen] { --banner-play-state: paused; }
   .hero[data-banner-motion] .banner-star {
-    animation: banner-star-twinkle 5.8s ease-in-out infinite;
+    animation: banner-star-twinkle 8.8s ease-in-out infinite;
     animation-play-state: var(--banner-play-state, running);
   }
   .hero[data-banner-motion] .banner-owl-eyes {
@@ -481,11 +481,8 @@ html.card-scroll-locked body {
   .banner-flake:nth-child(n + 26) { display: none; }
 }
 @keyframes banner-star-twinkle {
-  0%, 100% { opacity: .34; scale: .94; }
-  19% { opacity: .88; scale: 1.12; }
-  39% { opacity: .46; scale: .97; }
-  51% { opacity: .74; scale: 1.06; }
-  67% { opacity: .39; scale: .96; }
+  0%, 58%, 100% { opacity: .34; scale: .94; }
+  23% { opacity: 1; scale: 1.23; }
 }
 @keyframes banner-owl-blink {
   0%, 30.6%, 77.4%, 81.4%, 100% { background-position-x: 0%; }
