@@ -10,6 +10,7 @@
   <script src="cards.js" defer></script>
   <script src="image-gestures.js" defer></script>
   <script src="cardlist.js" defer></script>
+  <script src="banner-motion.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -17,7 +18,13 @@
   </header>
   <main>
     <section class="hero" aria-labelledby="app-title">
-      <div class="hero-art" aria-hidden="true"></div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="hero-scene">
+          <span class="banner-star"></span>
+          <span class="banner-owl-eyes"></span>
+        </div>
+        <div class="banner-snow"></div>
+      </div>
       <div class="container intro">
         <h1 id="app-title">Cardlist</h1>
         <p class="hint">Enter a card code, or search by its English or Thai title.</p>

@@ -37,20 +37,30 @@ button { cursor: pointer; }
 }
 .brand .star { color: var(--gold); font-size: 1.6rem; }
 .hero { position: relative; isolation: isolate; }
-.hero-art { position: absolute; z-index: -1; inset: 0; pointer-events: none; container-type: size; overflow: hidden;
-  background: linear-gradient(0deg,var(--bg),transparent 28%),
-    linear-gradient(90deg,rgba(13,20,39,.45),rgba(13,20,39,.17) 42%,transparent 69%),
-    url("assets/banner.jpg") center 34% / cover no-repeat;
+.hero-art { position: absolute; z-index: -1; inset: 0; pointer-events: none; container-type: size; overflow: hidden; }
+.hero-scene {
+  /* Anchor the effects to the full 3:1 artwork before the hero crops it. */
+  --art-width: max(100cqw, 300cqh);
+  --art-pixel: calc(var(--art-width) / 2172);
+  position: absolute; width: var(--art-width); aspect-ratio: 3 / 1;
+  left: min(50%, calc(100% - var(--art-width) * .48)); top: 34%;
+  transform: translate(-50%, -34%);
+  background: url("assets/banner.jpg") center / 100% 100% no-repeat;
 }
 .hero-art::after {
-  /* The banner is 3:1. The star sits at about 76% across and 12% down the artwork. */
-  --art-width: max(100cqw, 300cqh);
-  --art-height: calc(var(--art-width) / 3);
-  content: ""; position: absolute; width: 5.5rem; aspect-ratio: 1;
-  left: calc(50% + var(--art-width) * .258);
-  top: calc(34% - var(--art-height) * .224);
-  transform: translate(-50%, -50%); opacity: .3;
-  background: radial-gradient(circle, #fff4c4bd 0%, #ffcf7590 18%, #f9a9483d 42%, transparent 70%);
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(0deg,var(--bg),transparent 28%),
+    linear-gradient(90deg,rgba(13,20,39,.45),rgba(13,20,39,.17) 42%,transparent 69%);
+}
+.banner-star {
+  position: absolute; left: 75.76%; top: 11.63%; translate: -50% -50%;
+  width: clamp(3rem, calc(var(--art-pixel) * 122), 9rem); aspect-ratio: 1; opacity: .32;
+  background: radial-gradient(circle, #fff7d3 1%, #ffda8ba0 13%, #ffc35b46 29%, transparent 68%);
+}
+.banner-star::after {
+  content: ""; position: absolute; inset: 12%;
+  background: radial-gradient(ellipse 49% 3% at center, #fff7d7ca, #ffe7aa65 43%, transparent),
+    radial-gradient(ellipse 3% 49% at center, #fff7d7dd, #ffe7aa70 44%, transparent);
 }
 .intro { padding: 1.9rem 0 1.15rem; }
 h1, h2, h3, p { margin: 0; }
@@ -291,6 +301,9 @@ html.card-scroll-locked body {
 @media (min-width: 681px) and (max-height: 720px) {
   .detail { --detail-padding: 1.125rem; row-gap: 1rem; }
 }
+@media (min-width: 681px) and (max-width: 880px) {
+  .search { max-width: min(40.625rem, calc(100% - 6rem)); }
+}
 @media (min-width: 800px) { .card-grid { --gallery-columns: 4; } }
 @media (min-width: 1000px) { .card-grid { --gallery-columns: 5; } }
 @media (min-width: 1200px) { .card-grid { --gallery-columns: 6; } }
@@ -299,14 +312,15 @@ html.card-scroll-locked body {
 @media (max-width: 680px) {
   .container { width: calc(100% - 2.75rem); }
   .brand { min-height: 4.625rem; }
-  .hero-art { inset: 0 0 auto; height: 11rem; background-image:
-    linear-gradient(0deg,var(--bg),rgba(13,20,39,.18) 45%,transparent 76%),
-    url("assets/banner-mobile.webp");
-    background-size: auto, auto 171%; background-position: center, right 17%; background-repeat: no-repeat; }
+  .hero-art { inset: 0 0 auto; height: 11.75rem; }
+  .hero-scene {
+    --art-width: 408cqh;
+    left: 100%; top: 13%; transform: translate(-100%, -13%);
+    background-image: url("assets/banner-mobile.webp");
+  }
   .hero-art::after {
-    --art-height: 171cqh;
-    width: 3.75rem; left: calc(100% - var(--art-height) * .726);
-    top: calc(17% - var(--art-height) * .054);
+    background: linear-gradient(0deg, var(--bg), #0d142733 18%, transparent 46%),
+      radial-gradient(ellipse 79% 68% at left bottom, #0d1427ec, transparent);
   }
   .intro { padding-top: 8.05rem; }
   .hint { display: none; }
@@ -414,7 +428,33 @@ html.card-scroll-locked body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hero-art::after { animation: banner-star-pulse 2.4s ease-in-out 2; }
+  .hero-art[data-offscreen] { --banner-play-state: paused; }
+  .hero[data-banner-motion] .banner-star {
+    animation: banner-star-twinkle 5.8s ease-in-out infinite;
+    animation-play-state: var(--banner-play-state, running);
+  }
+  .hero[data-banner-motion] .banner-owl-eyes {
+    /* Align the three-frame blink sprite to the 2172×724 artwork. */
+    position: absolute;
+    width: calc(var(--art-pixel) * 86);
+    height: calc(var(--art-pixel) * 46);
+    left: calc(var(--art-pixel) * 1948);
+    top: calc(var(--art-pixel) * 357);
+    background: url("assets/banner-owl-blink.webp") 0 0 / 300% 100% no-repeat;
+    animation: banner-owl-blink 8.4s step-end infinite;
+    animation-play-state: var(--banner-play-state, running);
+  }
+  .banner-snow {
+    position: absolute; inset: 0; overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent 11%, #0007 32%, #000 60%);
+  }
+  .banner-flake {
+    position: absolute; top: -.5rem; width: var(--flake-size); aspect-ratio: 1;
+    border-radius: 50%; background: #e9f4ff; opacity: var(--flake-opacity);
+    filter: blur(var(--flake-blur));
+    animation: banner-snowfall var(--fall-duration) linear var(--fall-delay) infinite;
+    animation-play-state: var(--banner-play-state, running);
+  }
   .result { transition: transform 165ms ease, border-color 165ms ease, box-shadow 165ms ease; }
   .tile-art::after {
     content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
@@ -427,22 +467,34 @@ html.card-scroll-locked body {
     background: var(--foil-bands) 0% center / 210% 100% no-repeat;
     animation: popup-foil-sweep 280ms ease-in-out var(--popup-foil-delay, 0ms) both;
   }
+  .result.is-pressed { transform: scale(.975); transition-duration: 85ms; }
 }
 @media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   .result:hover { transform: translateY(-4px); box-shadow: 0 .5rem 1.3rem #070c1ab8; }
   .result:hover .tile-art::after { opacity: var(--foil-strength); }
 }
-@media (prefers-reduced-motion: no-preference) and (pointer: coarse) {
-  .hero-art::after { animation: banner-star-reveal 700ms ease-out both; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .result.is-pressed { transform: scale(.975); transition-duration: 85ms; }
+@media (max-width: 1080px) {
+  .banner-flake:nth-child(n + 38) { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) and (max-width: 680px) {
-  .hero-art::after { animation: banner-star-reveal 700ms ease-out both; }
+  .banner-snow { mask-image: none; }
+  .banner-flake:nth-child(n + 23) { display: none; }
 }
-@keyframes banner-star-pulse { 0%, 100% { opacity: .3; } 48% { opacity: .75; } }
-@keyframes banner-star-reveal { from { opacity: 0; } to { opacity: .3; } }
+@keyframes banner-star-twinkle {
+  0%, 100% { opacity: .34; scale: .94; }
+  19% { opacity: .88; scale: 1.12; }
+  39% { opacity: .46; scale: .97; }
+  51% { opacity: .74; scale: 1.06; }
+  67% { opacity: .39; scale: .96; }
+}
+@keyframes banner-owl-blink {
+  0%, 30.6%, 77.4%, 81.4%, 100% { background-position-x: 0%; }
+  27.6%, 29.8%, 74.4%, 76.6%, 78.7%, 80.6% { background-position-x: 50%; }
+  28.4%, 75.2%, 79.5% { background-position-x: 100%; }
+}
+@keyframes banner-snowfall {
+  to { transform: translate3d(var(--flake-drift), calc(100cqh + 1rem), 0); }
+}
 @keyframes popup-foil-sweep {
   0% { opacity: 0; background-position: var(--popup-foil-from, 0%) center; }
   44% { opacity: var(--foil-strength); }
