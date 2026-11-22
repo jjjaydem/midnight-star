@@ -37,6 +37,7 @@ const mobileSizingRegions = [
   [".detail-main", ".mobile-title-sizing"],
   [".detail-facts", ".mobile-facts-sizing"]
 ].map(selectors => selectors.map(selector => detailBody.querySelector(selector)));
+const adjacentPreviews = new Map();
 let cardsPerPage = galleryPageSize();
 let selectedTier = "";
 let matchingCards = [];
@@ -147,28 +148,65 @@ function sizeMobileDetails() {
 
 function showArtwork(image, artwork) {
   image.alt = artwork.alt;
+  image.fetchPriority = touchScreen.matches && !artwork.fullSrc ? "high" : "auto";
   image.src = artwork.fullSrc || artwork.previewSrc;
 }
 
-async function loadArtwork(card) {
+function preloadAdjacentPreviews(index) {
+  const urls = [matchingCards[index - 1], matchingCards[index + 1]]
+    .filter(Boolean)
+    .map(thumbnailUrl);
+  for (const url of adjacentPreviews.keys()) {
+    if (!urls.includes(url)) adjacentPreviews.delete(url);
+  }
+  for (const url of urls) {
+    if (adjacentPreviews.has(url)) continue;
+    const preview = new Image();
+    preview.fetchPriority = "low";
+    preview.src = url;
+    adjacentPreviews.set(url, preview);
+    preview.decode().catch(() => {
+      if (adjacentPreviews.get(url) === preview) adjacentPreviews.delete(url);
+    });
+  }
+}
+
+async function loadArtwork(card, index) {
+  activeArtwork?.fullRequest?.removeAttribute("src");
   const artwork = {
     alt: card.en + " (" + card.id + ")",
     previewSrc: thumbnailUrl(card),
-    fullSrc: ""
+    fullSrc: "",
+    fullRequest: null
   };
   activeArtwork = artwork;
   showArtwork(cardImage, artwork);
   if (imageDialog.open) updateFullImage();
 
+  const previewFirst = touchScreen.matches;
+  if (previewFirst) {
+    // Try the full image even if the preview cannot be decoded.
+    await cardImage.decode().catch(() => {});
+    if (activeArtwork !== artwork || !detail.open) return;
+    // Give the browser a paint before starting the larger download.
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    if (activeArtwork !== artwork || !detail.open) return;
+    preloadAdjacentPreviews(index);
+  }
+
   const full = new Image();
+  artwork.fullRequest = full;
+  if (previewFirst) full.fetchPriority = "low";
   full.src = imageFolder + encodeURIComponent(card.image);
   try {
     await full.decode();
   } catch {
     return; // Keep the preview available if the full image fails to load.
+  } finally {
+    artwork.fullRequest = null;
   }
 
-  if (activeArtwork !== artwork) return;
+  if (activeArtwork !== artwork || !detail.open) return;
   artwork.fullSrc = full.src;
   showArtwork(cardImage, artwork);
   if (imageDialog.open) showArtwork(fullCardImage, artwork);
@@ -183,7 +221,7 @@ function showDetails(index) {
   detail.style.setProperty("--accent", rarity.color);
   imageDialog.style.setProperty("--accent", rarity.color);
   for (const [id, text] of Object.entries(detailText(card))) element(id).textContent = text;
-  loadArtwork(card);
+  loadArtwork(card, index);
   const position = index + 1;
   const counter = position + " / " + matchingCards.length;
   const announcement = "Card " + position + " of " + matchingCards.length + ": " + card.en;
@@ -478,7 +516,9 @@ detail.addEventListener("close", () => {
   detailMotion.reset();
   for (const [, sizingRegion] of mobileSizingRegions) sizingRegion.replaceChildren();
   cardImage.removeAttribute("src");
+  activeArtwork?.fullRequest?.removeAttribute("src");
   activeArtwork = null;
+  adjacentPreviews.clear();
   activeCardIndex = -1;
   restorePageScroll();
   if (openedFrom) {
