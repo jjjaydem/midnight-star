@@ -5,7 +5,7 @@ const rarities = {
   R: { name: "Rare", color: "#95baff" },
   SR: { name: "Super Rare", color: "#cec0f8" },
   SEC: { name: "Secret Rare", color: "#e8c993" },
-  G: { name: "Guest", color: "#f8adb8" }
+  G: { name: "Gift", color: "#f8adb8" }
 };
 const element = id => document.getElementById(id);
 const search = element("card-search");

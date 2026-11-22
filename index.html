@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Look up The Midnight Star cards by code or title, browse rarity, and read each card story and New Year wishes.">
   <meta name="theme-color" content="#0d1427">
-  <title>Cardlist | The Midnight Star</title>
+  <title>CARDLIST | The Midnight Star</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="16x16 24x24 32x32 48x48 64x64">
   <link rel="stylesheet" href="styles.css">
   <script src="cards.js" defer></script>
   <script src="image-gestures.js" defer></script>
@@ -21,17 +22,18 @@
       <div class="hero-art" aria-hidden="true">
         <div class="hero-scene">
           <span class="banner-star"></span>
-          <span class="banner-owl-eyes"></span>
+          <span class="banner-owl-eyes">
+            <img src="assets/banner-owl-blink.webp" alt="" width="258" height="46">
+          </span>
         </div>
         <div class="banner-snow"></div>
       </div>
       <div class="container intro">
-        <h1 id="app-title">Cardlist</h1>
-        <p class="hint">Enter a card code, or search by its English or Thai title.</p>
+        <h1 id="app-title">CARDLIST</h1>
         <form class="search" id="search-form" role="search">
           <span class="magnifier" aria-hidden="true"></span>
           <label class="sr-only" for="card-search">Search by code or title</label>
-          <input id="card-search" name="q" type="search" placeholder="Search by code or title" autocomplete="off">
+          <input id="card-search" name="q" type="search" placeholder="Code or title" autocomplete="off">
           <button class="primary" type="submit">Search</button>
         </form>
         <div class="filters" id="filters" role="group" aria-label="Filter by rarity"></div>
