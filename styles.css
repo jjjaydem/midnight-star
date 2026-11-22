@@ -474,11 +474,11 @@ html.card-scroll-locked body {
   .result:hover .tile-art::after { opacity: var(--foil-strength); }
 }
 @media (max-width: 1080px) {
-  .banner-flake:nth-child(n + 38) { display: none; }
+  .banner-flake:nth-child(n + 43) { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) and (max-width: 680px) {
   .banner-snow { mask-image: none; }
-  .banner-flake:nth-child(n + 23) { display: none; }
+  .banner-flake:nth-child(n + 26) { display: none; }
 }
 @keyframes banner-star-twinkle {
   0%, 100% { opacity: .34; scale: .94; }
