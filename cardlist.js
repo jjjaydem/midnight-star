@@ -29,6 +29,7 @@ const fullImageArt = fullCardImage.parentElement;
 const empty = element("empty");
 const imageFolder = "assets/cards/";
 const mouseHover = matchMedia("(hover: hover) and (pointer: fine)");
+const touchScreen = matchMedia("(pointer: coarse)");
 const compactDetails = matchMedia(
   "(max-width: 680px), (max-width: 959px) and (max-height: 520px) and (orientation: landscape) and (pointer: coarse)"
 );
@@ -43,6 +44,7 @@ let galleryPage = 0;
 let activeCardIndex = -1;
 let activeArtwork = null;
 let openedFrom = null;
+let lockedScrollY = null;
 
 function normalize(value) {
   return value.normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}\p{M}]/gu, "");
@@ -383,11 +385,27 @@ results.addEventListener("pointermove", event => {
   if (button) aimFoil(button, event);
 });
 
+function lockPageScroll() {
+  if (!touchScreen.matches || lockedScrollY !== null) return;
+  lockedScrollY = window.scrollY;
+  document.body.style.setProperty("--card-scroll-top", -lockedScrollY + "px");
+  document.documentElement.classList.add("card-scroll-locked");
+}
+
+function restorePageScroll() {
+  if (lockedScrollY === null) return;
+  document.documentElement.classList.remove("card-scroll-locked");
+  document.body.style.removeProperty("--card-scroll-top");
+  window.scrollTo(0, lockedScrollY);
+  lockedScrollY = null;
+}
+
 function openCard(button) {
   if (!button.isConnected || detail.open) return;
   openedFrom = button;
   sizeMobileDetails();
   showDetails(matchingCards.findIndex(card => card.id === button.dataset.id));
+  lockPageScroll();
   detail.showModal();
   detailBody.scrollTop = 0;
   playPopupFoil(cardImage);
@@ -455,12 +473,14 @@ for (const dialog of [detail, imageDialog]) {
 }
 detail.addEventListener("close", () => {
   if (detail.open) return;
+  if (imageDialog.open) imageDialog.close();
   clearPopupFoil(cardArt);
   detailMotion.reset();
   for (const [, sizingRegion] of mobileSizingRegions) sizingRegion.replaceChildren();
   cardImage.removeAttribute("src");
   activeArtwork = null;
   activeCardIndex = -1;
+  restorePageScroll();
   if (openedFrom) {
     const returnTarget = openedFrom.isConnected ? openedFrom : catalogTitle;
     returnTarget.focus({ preventScroll: true });

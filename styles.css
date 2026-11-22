@@ -164,15 +164,22 @@ h1 { font: clamp(2.15rem, 4vw, 3.25rem)/1.1 var(--serif); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 html { scrollbar-gutter: stable; }
 html:has(.card-dialog[open]) { overflow: hidden; }
+html.card-scroll-locked { overflow: hidden; overscroll-behavior-y: none; }
+html.card-scroll-locked body {
+  position: fixed;
+  inset: var(--card-scroll-top) 0 auto;
+}
 .card-dialog {
-  width: min(51rem, calc(100% - 2rem)); max-width: none; max-height: calc(100dvh - 2rem);
+  --dialog-viewport-height: 100dvh;
+  width: min(51rem, calc(100% - 2rem)); max-width: none;
+  max-height: calc(var(--dialog-viewport-height) - 2rem);
   margin: auto; padding: 0; overflow: visible; background: var(--panel); color: var(--text);
   border: 1px solid var(--accent, var(--line)); border-radius: 1rem;
   box-shadow: 0 1.25rem 5rem #050912ad;
 }
 .card-dialog[open] { display: flex; flex-direction: column; }
 #card-detail[open] {
-  --detail-height: min(34.5rem, calc(100dvh - 2.75rem));
+  --detail-height: min(34.5rem, calc(var(--dialog-viewport-height) - 2.75rem));
   display: grid; height: var(--detail-height);
   grid-template: "navigation controls" auto "details details" minmax(0, 1fr) / minmax(0, 1fr) auto;
 }
@@ -229,7 +236,7 @@ html:has(.card-dialog[open]) { overflow: hidden; }
 .icon-close::after { transform: rotate(-45deg); }
 .close-dialog span { font-size: 1.25rem; line-height: 1; }
 .image-dialog {
-  --full-image-height: min(1169px, calc(100dvh - 9rem));
+  --full-image-height: min(1169px, calc(var(--dialog-viewport-height) - 9rem));
   width: max-content; max-width: calc(100% - 1rem);
 }
 .image-dialog::backdrop { background: rgb(5 9 19 / .88); }
@@ -253,7 +260,7 @@ html:has(.card-dialog[open]) { overflow: hidden; }
   .navigation-arrow[data-card-step="1"] { inset-inline-start: calc(100% + .7rem); }
 }
 @media (max-width: 959px) {
-  .image-dialog { --full-image-height: min(1169px, calc(100dvh - 10.5rem)); }
+  .image-dialog { --full-image-height: min(1169px, calc(var(--dialog-viewport-height) - 10.5rem)); }
 }
 @media (min-width: 681px) {
   .hero { display: grid; align-items: center; min-height: clamp(19rem, 27vw, 42rem); }
@@ -305,21 +312,29 @@ html:has(.card-dialog[open]) { overflow: hidden; }
   .result { padding: .44rem; border-radius: .65rem; }
   .result-code { margin-inline: .08rem; }
   .result-name { margin-inline: .08rem; }
-  .card-dialog { width: calc(100% - 1rem); max-height: calc(100dvh - 1rem); }
+  .card-dialog { width: calc(100% - 1rem); }
   .dialog-toolbar { padding-inline: .65rem; }
   .dialog-toolbar .close-dialog { padding-inline: .55rem; }
   .card-navigation { gap: .3rem; }
   .detail { grid-template: "title" max-content "art" minmax(6.5rem, 1fr) "text" max-content / minmax(0, 1fr); }
   #card-detail[open] {
-    --detail-height: min(50rem, calc(100dvh - 1.25rem));
+    --detail-height: min(50rem, calc(var(--dialog-viewport-height) - 1.25rem));
     grid-template: "controls" auto "details" minmax(0, 1fr) / minmax(0, 1fr);
   }
   .detail-navigation { display: none; }
   .mobile-card-arrow { display: inline-flex; }
 }
 @media (max-width: 680px), (max-width: 959px) and (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
+  /* Reserve space for mobile browser controls even when they retract. */
+  .card-dialog {
+    --dialog-viewport-height: 100svh;
+    max-height: calc(var(--dialog-viewport-height) - 1rem);
+    inset-block: 50svh auto;
+    margin-block: 0;
+    translate: 0 -50%;
+  }
   #card-detail > .dialog-toolbar { padding-block: .3rem; }
-  .detail { --detail-padding: .65rem; gap: .5rem; scrollbar-gutter: auto; }
+  .detail { --detail-padding: .65rem; gap: .5rem; scrollbar-gutter: auto; overscroll-behavior-y: none; }
   .detail-title { margin-top: .45rem; font-size: clamp(1.5rem, 6.7vw, 1.8rem); }
   .detail-th { margin-top: .23rem; font-size: 1.0625rem; }
   .detail-facts { margin-top: 0; padding-top: .45rem; }
@@ -347,7 +362,7 @@ html:has(.card-dialog[open]) { overflow: hidden; }
 }
 @media (max-width: 959px) and (max-height: 520px) and (orientation: landscape) and (pointer: coarse) {
   #card-detail[open] {
-    --detail-height: calc(100dvh - 1rem);
+    --detail-height: calc(var(--dialog-viewport-height) - 1rem);
     grid-template: "navigation controls" auto "details details" minmax(0, 1fr) / minmax(0, 1fr) auto;
   }
   .detail-navigation { display: flex; }
